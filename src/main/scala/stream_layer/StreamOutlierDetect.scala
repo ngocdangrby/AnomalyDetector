@@ -144,7 +144,7 @@ class StreamOutlierDetectSpark {
   //    val res = test.withWatermark("created_at", "10 minutes")
   //      .groupBy(window(col("created_at"), "5 minutes")).count()
   //  val test2 = test.withWatermark("created_at","10 minutes")
-  val test = cpuDF
+  val test = cpuDF.withWatermark("created_at", "20 seconds")
     .select(expr("percentile(usage, array(0.5))").alias("median"))
   //    var median1 = test.select(col("median")).first().getDouble(0)
   val q1 = test.writeStream
@@ -167,7 +167,7 @@ class StreamOutlierDetectSpark {
   val median2 = spark.sql("select median2 from median2Table")
   val cpuDF4 = cpuDF3.crossJoin(median2)
   val cpuDF5 = cpuDF4.withColumn("mad", abs((col("usage") - col("median")(0))/(col("median2")(0)*1.4826)))
-  val cpuDF6 = cpuDF5.where(col("mad") >= 1)
+  val cpuDF6 = cpuDF5.where(col("mad") >= 3.2)
 
 //  val writeConsole = cpuDF6.writeStream
 //    .format("console")
