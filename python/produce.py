@@ -12,24 +12,24 @@ def produce_data(topic_name):
                              value_serializer=lambda x: dumps(x).encode('utf-8'))
     while(True):
         gmt = time.gmtime()
-        data = {'usage': 50+randint(0, 15),
-                'timestamp': calendar.timegm(gmt),
-                'source': topic_name}
+        data = {'usage': 50+randint(0, 5),
+                'created_at': int(calendar.timegm(gmt)),
+                'source_computer': topic_name}
         producer.send(topic_name, value=data)
-        sleep(3)
+        sleep(10)
 
 
 processes = list()
 for i in range(7):
-    print("start cpu{}".format(i))
-    p = multiprocessing.Process(target=produce_data, args=("ram{}".format(i),))
+    print("start testdata{}".format(i))
+    p = multiprocessing.Process(target=produce_data, args=("testdata{}".format(i),))
     processes.append(p)
 
 for i, process in enumerate(processes):
-    print("RUN cpu{}".format(i))
+    print("RUN testdata{}".format(i))
     process.start()
 
 
 for i, process in enumerate(processes):
-    print("JOIN cpu{}".format(i))
+    print("JOIN testdata{}".format(i))
     process.join()
