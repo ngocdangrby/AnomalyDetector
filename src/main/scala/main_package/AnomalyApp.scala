@@ -3,12 +3,12 @@ package main_package
 ;
 
 import akka.actor.{ActorSystem, Props}
-import stream_layer.{StartProcessing, StreamOutlierDetectSpark, StreamOutlierProcessActor};
+import stream_layer.{StartProcessing, StreamOutlierDetectSpark, StreamOutlierProcessActor, TestActor, testApp}
 
 object AnomalyApp {
   def main(args: Array[String]): Unit = {
     println("Start app")
-    runProcess()
+    runProcess(args(0), args(1))
   }
 
   def runProcess(): Unit = {

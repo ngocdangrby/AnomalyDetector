@@ -6,8 +6,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.{abs, col, expr, from_json, from_unixtime, lit, stddev, struct, to_date, to_json, udf, window}
 import org.apache.spark.sql.types.{IntegerType, LongType, StringType, StructType, TimestampType}
 
-class StreamOutlierDetectSpark(kafkahost: String, prefixTopic: String){
-
+class testApp {
   val spark = SparkSession.builder().appName("Lambda Architecture - Speed layer")
     .master("local")
     .getOrCreate()
@@ -22,8 +21,8 @@ class StreamOutlierDetectSpark(kafkahost: String, prefixTopic: String){
 
   val df = spark.readStream
     .format("kafka")
-    .option("kafka.bootstrap.servers", kafkahost)
-    .option("subscribePattern", prefixTopic+".*")
+    .option("kafka.bootstrap.servers", "localhost:9092")
+    .option("subscribePattern", "testdata.*")
     .load()
 
   val metricCpuDf = df.selectExpr("CAST(value AS STRING)")
@@ -170,20 +169,20 @@ class StreamOutlierDetectSpark(kafkahost: String, prefixTopic: String){
   val cpuDF5 = cpuDF4.withColumn("mad", abs((col("usage") - col("median")(0))/(col("median2")(0)*1.4826)))
   val cpuDF6 = cpuDF5.where(col("mad") >= 3.2)
 
-//  val writeConsole = cpuDF6.writeStream
-//    .format("console")
-//    .queryName("anomaly")
-//    .outputMode("append")
-//    .start()
+  //  val writeConsole = cpuDF6.writeStream
+  //    .format("console")
+  //    .queryName("anomaly")
+  //    .outputMode("append")
+  //    .start()
   cpuDF6.printSchema()
-val writeConsole = cpuDF6.select(to_json(struct($"created_at",$"usage",$"source_computer")).alias("value"))
-  .selectExpr( "CAST(value AS STRING)")
-  .writeStream
-  .format("kafka")
-  .option("kafka.bootstrap.servers", "localhost:9092")
-  .option("topic", "alert")
-  .option("checkpointLocation", "/home/dang/Desktop/checkpoint/")
-  .start()
+  val writeConsole = cpuDF6.select(to_json(struct($"created_at",$"usage",$"source_computer")).alias("value"))
+    .selectExpr( "CAST(value AS STRING)")
+    .writeStream
+    .format("kafka")
+    .option("kafka.bootstrap.servers", "localhost:9092")
+    .option("topic", "alert")
+    .option("checkpointLocation", "/home/dang/Desktop/checkpoint/")
+    .start()
 
   q1.awaitTermination()
   q2.awaitTermination()
@@ -194,13 +193,13 @@ val writeConsole = cpuDF6.select(to_json(struct($"created_at",$"usage",$"source_
   }
 }
 
-case object StartProcessing
+case object StartTestProcessing
 
-class StreamOutlierProcessActor(spark_realtimeProc: StreamOutlierDetectSpark) extends Actor {
+class TestActor(spark_realtimeProc: testApp) extends Actor {
   //Implement receive method
   def receive = {
     //Start hashtag realtime processing
-    case StartProcessing => {
+    case StartTestProcessing => {
       spark_realtimeProc.runDetect()
       println("\nRestart hashtag realtime processing...")
     }
