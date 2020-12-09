@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>vn.com.viettel.ocs</groupId>
-    <artifactId>AnomalyDetect</artifactId>
+    <groupId>com</groupId>
+    <artifactId>com</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
-        <scala.version>2.11.12</scala.version>
+        <scala.version>2.12.11</scala.version>
     </properties>
     <dependencies>
 
@@ -23,67 +23,60 @@
         <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-sql -->
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_2.11</artifactId>
-            <version>2.4.0</version>
+            <artifactId>spark-sql_2.12</artifactId>
+            <version>3.0.0</version>
         </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/com.datastax.spark/spark-cassandra-connector -->
         <dependency>
             <groupId>com.datastax.spark</groupId>
-            <artifactId>spark-cassandra-connector_2.11</artifactId>
-            <version>2.4.0</version>
+            <artifactId>spark-cassandra-connector_2.12</artifactId>
+            <version>3.0.0</version>
         </dependency>
 
-
-        <!-- https://mvnrepository.com/artifact/org.twitter4j/twitter4j-stream -->
-        <dependency>
-            <groupId>org.twitter4j</groupId>
-            <artifactId>twitter4j-stream</artifactId>
-            <version>4.0.7</version>
-        </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-sql-kafka-0-10 -->
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql-kafka-0-10_2.11</artifactId>
-            <version>2.4.0</version>
+            <artifactId>spark-sql-kafka-0-10_2.12</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
         </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/net.liftweb/lift-json -->
         <dependency>
             <groupId>net.liftweb</groupId>
-            <artifactId>lift-json_2.11</artifactId>
-            <version>3.2.0</version>
+            <artifactId>lift-json_2.12</artifactId>
+            <version>3.4.3</version>
         </dependency>
 
 
-        <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor -->
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.11</artifactId>
-            <version>2.5.21</version>
+            <artifactId>akka-actor_2.12</artifactId>
+            <version>2.5.31</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-http -->
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-http_2.11</artifactId>
-            <version>10.1.7</version>
+            <artifactId>akka-http_2.12</artifactId>
+            <version>10.1.13</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-stream_2.12</artifactId>
+            <version>2.5.31</version> <!-- Or whatever the latest version is -->
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-http-spray-json -->
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-http-spray-json_2.11</artifactId>
-            <version>10.1.7</version>
+            <artifactId>akka-http-spray-json_2.12</artifactId>
+            <version>10.1.13</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-stream -->
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-stream_2.11</artifactId>
-            <version>2.5.21</version>
-        </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
         <dependency>
@@ -92,12 +85,6 @@
             <version>2.8.5</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>net.alchim31.maven</groupId>-->
-<!--            <artifactId>scala-maven-plugin</artifactId>-->
-<!--            <version>3.4.6</version>-->
-<!--        </dependency>-->
-        <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-eclipse-plugin -->
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-eclipse-plugin</artifactId>
@@ -110,9 +97,10 @@
         <testSourceDirectory>src/test/scala</testSourceDirectory>
         <plugins>
             <plugin>
+                <!-- https://mvnrepository.com/artifact/net.alchim31.maven/scala-maven-plugin -->
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.4.6</version>
+                <version>4.4.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -122,36 +110,93 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <scalaVersion>${scala.version}</scalaVersion>
+                    <scalaVersion>2.12.11</scalaVersion>
                     <args>
-                        <arg>-target:jvm-1.5</arg>
+                        <arg>-target:jvm-1.8</arg>
                     </args>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass>main_package.AnomalyApp</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>allinone</shadedClassifierName>
+<!--                            <artifactSet>-->
+<!--&lt;!&ndash;                                <includes>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <include>*:*</include>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </includes>&ndash;&gt;-->
+<!--                                <excludes>-->
+<!--                                    <exclude>META-INF/*.SF</exclude>-->
+<!--                                    <exclude>META-INF/*.RSA</exclude>-->
+<!--                                    <exclude>META-INF/*.DSA</exclude>-->
+<!--&lt;!&ndash;                                    <exclude>*:xml-apis</exclude>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <exclude>org.apache.maven:lib:tests</exclude>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <exclude>log4j:log4j:jar:</exclude>&ndash;&gt;-->
+<!--                                </excludes>-->
+<!--                            </artifactSet>-->
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>reference.conf</resource>
+
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Main-Class>com.main_package.AnomalyApp</Main-Class>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-assembly-plugin</artifactId>-->
+<!--                <version>3.3.0</version>-->
+<!--                <configuration>-->
+<!--                    <descriptorRefs>-->
+<!--                        <descriptorRef>jar-with-dependencies</descriptorRef>-->
+<!--                    </descriptorRefs>-->
+<!--                    <descriptors>-->
+<!--                        <descriptor>src/main/assembly/assembly.xml</descriptor>-->
+
+<!--                    </descriptors>-->
+<!--                    <archive>-->
+<!--                        <manifest>-->
+<!--                            <mainClass>main_package.AnomalyApp</mainClass>-->
+<!--                        </manifest>-->
+<!--                    </archive>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>single</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
