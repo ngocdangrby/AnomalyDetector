@@ -1,12 +1,13 @@
-package stream_layer
+package com.stream_layer
 
 import akka.actor.Actor
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.sql.functions.{abs, col, expr, from_json, from_unixtime, lit, stddev, struct, to_date, to_json, udf, window}
-import org.apache.spark.sql.types.{IntegerType, LongType, StringType, StructType, TimestampType}
+import org.apache.spark.sql.functions.{abs, col, expr, from_json, from_unixtime, lit, stddev, struct, to_date, to_json, udf, unix_timestamp, window}
+import org.apache.spark.sql.types.{ArrayType, IntegerType, LongType, StringType, StructType, TimestampType}
 
-class testApp {
+class StreamOutlierDetectSpark(kafkahost: String, prefixTopic: String, checkpointpath: String){
+
   val spark = SparkSession.builder().appName("Lambda Architecture - Speed layer")
     .master("local")
     .getOrCreate()
@@ -21,14 +22,14 @@ class testApp {
 
   val df = spark.readStream
     .format("kafka")
-    .option("kafka.bootstrap.servers", "localhost:9092")
-    .option("subscribePattern", "testdata.*")
+    .option("kafka.bootstrap.servers", kafkahost)
+    .option("subscribePattern", prefixTopic+".*")
     .load()
 
   val metricCpuDf = df.selectExpr("CAST(value AS STRING)")
 
-  val schema = new StructType().add("created_at", TimestampType)
-    .add("usage", IntegerType).add("source_computer", StringType)
+  val schema = new  StructType().add("timestamp", TimestampType)
+    .add("pkts", IntegerType).add("interface", StringType)
 
   val cpuDF = metricCpuDf.select(from_json(col("value"), schema).as("data"))
     .select("data.*")
@@ -144,6 +145,8 @@ class testApp {
   //    val res = test.withWatermark("created_at", "10 minutes")
   //      .groupBy(window(col("created_at"), "5 minutes")).count()
   //  val test2 = test.withWatermark("created_at","10 minutes")
+
+  cpuDF.withColumn("created_at",unix_timestamp(col("timestamp")/1000))
   val test = cpuDF.withWatermark("created_at", "20 seconds")
     .select(expr("percentile(usage, array(0.5))").alias("median"))
   //    var median1 = test.select(col("median")).first().getDouble(0)
@@ -169,20 +172,20 @@ class testApp {
   val cpuDF5 = cpuDF4.withColumn("mad", abs((col("usage") - col("median")(0))/(col("median2")(0)*1.4826)))
   val cpuDF6 = cpuDF5.where(col("mad") >= 3.2)
 
-  //  val writeConsole = cpuDF6.writeStream
-  //    .format("console")
-  //    .queryName("anomaly")
-  //    .outputMode("append")
-  //    .start()
+//  val writeConsole = cpuDF6.writeStream
+//    .format("console")
+//    .queryName("anomaly")
+//    .outputMode("append")
+//    .start()
   cpuDF6.printSchema()
-  val writeConsole = cpuDF6.select(to_json(struct($"created_at",$"usage",$"source_computer")).alias("value"))
-    .selectExpr( "CAST(value AS STRING)")
-    .writeStream
-    .format("kafka")
-    .option("kafka.bootstrap.servers", "localhost:9092")
-    .option("topic", "alert")
-    .option("checkpointLocation", "/home/dang/Desktop/checkpoint/")
-    .start()
+val writeConsole = cpuDF6.select(to_json(struct($"created_at",$"usage",$"source_computer")).alias("value"))
+  .selectExpr( "CAST(value AS STRING)")
+  .writeStream
+  .format("kafka")
+  .option("kafka.bootstrap.servers", kafkahost)
+  .option("topic", "alert")
+  .option("checkpointLocation", checkpointpath)
+  .start()
 
   q1.awaitTermination()
   q2.awaitTermination()
@@ -193,13 +196,13 @@ class testApp {
   }
 }
 
-case object StartTestProcessing
+case object StartProcessing
 
-class TestActor(spark_realtimeProc: testApp) extends Actor {
+class StreamOutlierProcessActor(spark_realtimeProc: StreamOutlierDetectSpark) extends Actor {
   //Implement receive method
   def receive = {
     //Start hashtag realtime processing
-    case StartTestProcessing => {
+    case StartProcessing => {
       spark_realtimeProc.runDetect()
       println("\nRestart hashtag realtime processing...")
     }

@@ -1,8 +1,8 @@
-name,base
-testdata0,50
-testdata1,50
-testdata2,50
-testdata3,50
-testdata4,50
-testdata5,50
-testdata6,50
+name,baseCPU,baseRAM, baseDisk,
+com1,50,50,50
+com2,50,50,50
+com3,50,50,50
+com4,50,50,50
+com0,50,50,50
+com5,50,50,50
+
